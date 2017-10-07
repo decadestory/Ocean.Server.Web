@@ -6,7 +6,9 @@
         <span logo-txt>Ocean Server</span>
         <div header-list>
           <a href="#">API</a>
-          <a href="#">Upload Files</a>
+          <a href="#">
+            <router-link to="uploadFile" replace>Upload Files</router-link>
+          </a>
           <a href="#">About</a>
         </div>
       </div>
@@ -15,7 +17,7 @@
       <div main-search>
         <input v-model="searchKey" @keyup.13="search" sarch-input placeholder="search files and static resources" />
       </div>
-      <div mid-sta>All Files:101564 | All Static Files:12561 </div>
+      <div mid-sta>All Files:{{allCnt}} | All Static Files:{{staticCnt}} </div>
     </section>
 
     <section body>
@@ -27,20 +29,35 @@
 </template>
 
 <script>
+import { getSatastic } from './api/api'
+
 export default {
   name: 'app',
   data() {
     return {
-      searchKey: ""
+      searchKey: "",
+      allCnt:0,
+      staticCnt:0
     }
   },
-  methods:{
-    search(){
+  methods: {
+    search() {
+      var isSpage = location.href.indexOf('uploadFile') >= 0;
+      if (isSpage) return this.$router.push('/')
+
       var key = this.searchKey;
       this.$refs.list.getFileList(key);
     }
+  },
+  mounted() {
+     getSatastic().then((res) => {
+        if (res.data.Code !== 200) return alert(res.data.Message)
+        this.allCnt = res.data.Data.AllCnt;
+        this.staticCnt = res.data.Data.StaticCnt;
+      });
   }
 }
+
 </script>
 
 <style>
